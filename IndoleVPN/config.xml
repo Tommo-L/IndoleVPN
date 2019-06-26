@@ -1,0 +1,11 @@
+<indole>
+    <tcpaes network="tcp" address="localhost:8081" bufsize="1024">
+        <encode>
+            <aesenc queue_size="1024" 	hex_key="1ca1a0be8251467e87da3c678cb8515d"/>
+        </encode>
+        <decode>
+            <aesdec queue_size="1024" hex_key="1ca1a0be8251467e87da3c678cb8515d" buf_size="65536"/>
+        </decode>
+        <tcp network="tcp" address="207.148.73.0:34567"/>
+    </tcpaes>
+</indole>
