@@ -1,0 +1,11 @@
+D:\workspace\IndoleVPN\IndoleVPN\bin\Debug\config.xml
+D:\workspace\IndoleVPN\IndoleVPN\bin\Debug\indole.exe
+D:\workspace\IndoleVPN\IndoleVPN\bin\Debug\IndoleVPN.exe.config
+D:\workspace\IndoleVPN\IndoleVPN\bin\Debug\IndoleVPN.exe
+D:\workspace\IndoleVPN\IndoleVPN\bin\Debug\IndoleVPN.pdb
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.IndoleVPN.resources
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.Properties.Resources.resources
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.csproj.GenerateResource.cache
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.csproj.CoreCompileInputs.cache
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.exe
+D:\workspace\IndoleVPN\IndoleVPN\obj\Debug\IndoleVPN.pdb

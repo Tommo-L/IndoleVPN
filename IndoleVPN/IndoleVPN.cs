@@ -28,51 +28,83 @@ namespace IndoleVPN
             XElement configXml = XElement.Load(@"config.xml");
             if (configXml == null) return;
 
-            XElement tcpaes = configXml.Element("tcpaes");
-            if (tcpaes == null) return;
+            XElement manager = configXml.Element("Manager");
+            if (manager == null) return;
 
-            localProxyPortTxt.Text = tcpaes.Attribute("address").Value.ToString();
-
-            XElement encode = tcpaes.Element("encode");
-            if (encode != null)
+            foreach(var e in manager.Elements())
             {
-                XElement aesenc = encode.Element("aesenc");
-                aesKeyTxt.Text = aesenc.Attribute("hex_key").Value.ToString();
+                if(e.Name == "Plugin" && e.Attribute("name").Value.ToString() == "AESEncodePacket")
+                {
+                    aesKeyTxt.Text = e.Element("HexKey").Value.ToString();
+                }
+                if (e.Name == "Plugin" && e.Attribute("name").Value.ToString() == "TCPInterface")
+                {
+                    remoteProxyTxt.Text = e.Element("Address").Value.ToString();
+                }
+                if (e.Name == "Control")
+                {
+                    localProxyPortTxt.Text = e.Element("Address").Value.ToString();
+                }
             }
-
-            XElement decode = tcpaes.Element("decode");
-            if (decode != null)
-            {
-                XElement aesdec = decode.Element("aesdec");
-                aesKeyTxt.Text = aesdec.Attribute("hex_key").Value.ToString();
-            }
-
-            XElement tcp = tcpaes.Element("tcp");
-            if (tcp == null) return;
-
-            remoteProxyTxt.Text = tcp.Attribute("address").Value.ToString();
         }
 
         private XElement buildXML()
         {
-            XElement configXml = new XElement("indole",
-                                  new XElement("tcpaes",
-                                          new XAttribute("network", "tcp"),
-                                          new XAttribute("address", localProxyPortTxt.Text),
-                                          new XAttribute("bufsize", "1024"),
+            XElement configXml = new XElement("Indole",
+                                  new XElement("Manager",
+                                          new XElement("Plugin",
+                                                    new XAttribute("name", "AESEncodePacket"),
+                                                    new XElement("HexKey", aesKeyTxt.Text)),
 
-                                          new XElement("encode",
-                                                      new XElement("aesenc",
-                                                                  new XAttribute("queue_size", "1024"),
-                                                                  new XAttribute("hex_key", aesKeyTxt.Text))),
-                                          new XElement("decode",
-                                                  new XElement("aesdec",
-                                                                  new XAttribute("queue_size", "1024"),
-                                                                  new XAttribute("hex_key", aesKeyTxt.Text),
-                                                                  new XAttribute("buf_size", "65536"))),
-                                          new XElement("tcp",
-                                                  new XAttribute("network", "tcp"),
-                                                  new XAttribute("address", remoteProxyTxt.Text))));
+                                          new XElement("Plugin",
+                                                    new XAttribute("name", "PacketToStreamWithAES"),
+                                                    new XElement("HexKey", aesKeyTxt.Text)),
+
+                                          new XElement("Plugin",
+                                                    new XAttribute("name", "TCPInterface"),
+                                                    new XElement("Network","tcp"),
+                                                    new XElement("Address", remoteProxyTxt.Text)),
+
+                                         new XElement("Plugin",
+                                                    new XAttribute("name", "StreamToPacketWithAES"),
+                                                    new XElement("HexKey", aesKeyTxt.Text)),
+
+                                          new XElement("Plugin",
+                                                    new XAttribute("name", "AESDecodePacket"),
+                                                    new XElement("HexKey", aesKeyTxt.Text)),
+
+                                          new XElement("Connection",
+                                                    new XAttribute("x", "0"),
+                                                    new XAttribute("y", "1"),
+                                                    new XAttribute("size", "8192")),
+
+                                          new XElement("Connection",
+                                                    new XAttribute("x", "1"),
+                                                    new XAttribute("y", "2"),
+                                                    new XAttribute("size", "4096")),
+
+                                          new XElement("Connection",
+                                                    new XAttribute("x", "2"),
+                                                    new XAttribute("y", "3"),
+                                                    new XAttribute("size", "4096")),
+
+
+                                          new XElement("Connection",
+                                                    new XAttribute("x", "3"),
+                                                    new XAttribute("y", "4"),
+                                                    new XAttribute("size", "8192")),
+
+                                          new XElement("Control",
+                                                  new XAttribute("name", "TCPControl"),
+                                                  new XElement("Network","tcp"),
+                                                  new XElement("Address", localProxyPortTxt.Text),
+                                                  new XElement("In", "0"),
+                                                  new XElement("Out", "4"),
+                                                  new XElement("Size", "4096"))));
+
+            var tmp = configXml.ToString();
+            Console.WriteLine(configXml.ToString());
+
             return configXml;
         }
 
@@ -133,6 +165,7 @@ namespace IndoleVPN
                 MessageBox.Show("请配置本地代理地址和端口", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            refreshConfig();
 
             if (indoleExe != null)
             {

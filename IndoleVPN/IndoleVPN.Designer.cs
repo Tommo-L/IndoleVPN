@@ -36,7 +36,6 @@
             this.aesKeyTxt = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.localProxyPortTxt = new System.Windows.Forms.TextBox();
-            this.saveBtn = new System.Windows.Forms.Button();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.OpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -97,16 +96,6 @@
             this.localProxyPortTxt.TabIndex = 5;
             this.localProxyPortTxt.Text = "localhost:8091";
             // 
-            // saveBtn
-            // 
-            this.saveBtn.Location = new System.Drawing.Point(254, 183);
-            this.saveBtn.Name = "saveBtn";
-            this.saveBtn.Size = new System.Drawing.Size(75, 23);
-            this.saveBtn.TabIndex = 6;
-            this.saveBtn.Text = "保存";
-            this.saveBtn.UseVisualStyleBackColor = true;
-            this.saveBtn.Click += new System.EventHandler(this.button1_Click);
-            // 
             // notifyIcon1
             // 
             this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip;
@@ -154,7 +143,7 @@
             // 
             // startBtn
             // 
-            this.startBtn.Location = new System.Drawing.Point(23, 182);
+            this.startBtn.Location = new System.Drawing.Point(254, 182);
             this.startBtn.Name = "startBtn";
             this.startBtn.Size = new System.Drawing.Size(75, 23);
             this.startBtn.TabIndex = 7;
@@ -164,7 +153,7 @@
             // 
             // stopBtn
             // 
-            this.stopBtn.Location = new System.Drawing.Point(139, 182);
+            this.stopBtn.Location = new System.Drawing.Point(116, 182);
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(75, 23);
             this.stopBtn.TabIndex = 8;
@@ -179,7 +168,6 @@
             this.ClientSize = new System.Drawing.Size(359, 218);
             this.Controls.Add(this.stopBtn);
             this.Controls.Add(this.startBtn);
-            this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.localProxyPortTxt);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.aesKeyTxt);
@@ -205,7 +193,6 @@
         private System.Windows.Forms.TextBox aesKeyTxt;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox localProxyPortTxt;
-        private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem OpenToolStripMenuItem;

@@ -1,0 +1,31 @@
+<Indole>
+    <Manager>
+        <Plugin name="AESEncodePacket">
+            <HexKey>1ca1a0be8251467e87da3c678cb8515d</HexKey>
+        </Plugin>
+        <Plugin name="PacketToStreamWithAES">
+            <HexKey>1ca1a0be8251467e87da3c678cb8515d</HexKey>
+        </Plugin>
+        <Plugin name="TCPInterface">
+            <Network>tcp</Network>
+            <Address>207.148.73.0:34567</Address>
+        </Plugin>
+        <Plugin name="StreamToPacketWithAES">
+            <HexKey>1ca1a0be8251467e87da3c678cb8515d</HexKey>
+        </Plugin>
+        <Plugin name="AESDecodePacket">
+            <HexKey>1ca1a0be8251467e87da3c678cb8515d</HexKey>
+        </Plugin>
+        <Connection x="0" y="1" size="8192"/>
+        <Connection x="1" y="2" size="4096"/>
+        <Connection x="2" y="3" size="4096"/>
+        <Connection x="3" y="4" size="8192"/>
+        <Control name="TCPControl">
+            <Network>tcp</Network>
+            <Address>0.0.0.0:8092</Address>
+            <In>0</In>
+            <Out>4</Out>
+            <Size>4096</Size>
+        </Control>
+    </Manager>
+</Indole>
