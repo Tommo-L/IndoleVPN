@@ -1,7 +1,13 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -9,12 +15,19 @@ namespace IndoleVPN
 {
     public partial class IndoleVPN : Form
     {
+
+
         [DllImport("wininet.dll")]
         public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
         public const int INTERNET_OPTION_SETTINGS_CHANGED = 39;
         public const int INTERNET_OPTION_REFRESH = 37;
 
+        private string AesKey;
+        private string RemoteHost;
+
         Process indoleExe;
+
+        public object JsonConvert { get; private set; }
 
         public IndoleVPN()
         {
@@ -35,11 +48,16 @@ namespace IndoleVPN
             {
                 if(e.Name == "Plugin" && e.Attribute("name").Value.ToString() == "AESEncodePacket")
                 {
-                    aesKeyTxt.Text = e.Element("HexKey").Value.ToString();
+                    //aesKeyTxt.Text = e.Element("HexKey").Value.ToString();
                 }
                 if (e.Name == "Plugin" && e.Attribute("name").Value.ToString() == "TCPInterface")
                 {
-                    remoteProxyTxt.Text = e.Element("Address").Value.ToString();
+                    // string host = e.Element("Address").Value.ToString();
+                    //  remoteProxyTxt.Text = e.Element("Address").Value.ToString();
+                    if(e.Element("ProxyAddress") != null)
+                    {
+                        remoteProxyTxt.Text = e.Element("ProxyAddress").Value.ToString();
+                    }
                 }
                 if (e.Name == "Control")
                 {
@@ -54,24 +72,25 @@ namespace IndoleVPN
                                   new XElement("Manager",
                                           new XElement("Plugin",
                                                     new XAttribute("name", "AESEncodePacket"),
-                                                    new XElement("HexKey", aesKeyTxt.Text)),
+                                                    new XElement("HexKey", AesKey)),
 
                                           new XElement("Plugin",
                                                     new XAttribute("name", "PacketToStreamWithAES"),
-                                                    new XElement("HexKey", aesKeyTxt.Text)),
+                                                    new XElement("HexKey", AesKey)),
 
                                           new XElement("Plugin",
                                                     new XAttribute("name", "TCPInterface"),
                                                     new XElement("Network","tcp"),
-                                                    new XElement("Address", remoteProxyTxt.Text)),
+                                                    new XElement("ProxyAddress", remoteProxyTxt.Text),
+                                                    new XElement("Address", RemoteHost)),
 
                                          new XElement("Plugin",
                                                     new XAttribute("name", "StreamToPacketWithAES"),
-                                                    new XElement("HexKey", aesKeyTxt.Text)),
+                                                    new XElement("HexKey", AesKey)),
 
                                           new XElement("Plugin",
                                                     new XAttribute("name", "AESDecodePacket"),
-                                                    new XElement("HexKey", aesKeyTxt.Text)),
+                                                    new XElement("HexKey", AesKey)),
 
                                           new XElement("Connection",
                                                     new XAttribute("x", "0"),
@@ -122,6 +141,36 @@ namespace IndoleVPN
 
 
 
+        private void requestAESKey()
+        {
+            Task task = new Task(() =>
+            {
+                string proxyHost = remoteProxyTxt.Text; // 45.32.129.138:5003
+                string response = HttpGet("http://"+ proxyHost + "/indoleVPN/api/config");
+                dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(response);
+                AesKey = obj["aesKey"];
+                RemoteHost = obj["remoteHost"];
+
+                startIndole();
+            });
+            task.Start();
+            //AesKey = "1ca1a0be8251467e87da3c678cb8515b";
+            //RemoteHost = "45.32.129.138:34568";
+        }
+
+        private string HttpGet(string api)
+        {
+            string serviceAddress = api;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(serviceAddress);
+            request.Method = "GET";
+            request.ContentType = "text/html;charset=UTF-8";
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream myResponseStream = response.GetResponseStream();
+            StreamReader myStreamReader = new StreamReader(myResponseStream, Encoding.UTF8);
+            return myStreamReader.ReadToEnd();
+        }
+
+
         private void ElephantVPN_Resize(object sender, EventArgs e)
         {
             if(this.WindowState == FormWindowState.Minimized)
@@ -154,17 +203,25 @@ namespace IndoleVPN
             {
                 MessageBox.Show("请配置远程代理地址和端口", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            string aesKey = aesKeyTxt.Text;
-            if (aesKey == null || aesKey.Trim() == "")
-            {
-                MessageBox.Show("请配置AES加密key", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
             string localProxy = localProxyPortTxt.Text;
             if (localProxy == null || localProxy.Trim() == "")
             {
                 MessageBox.Show("请配置本地代理地址和端口", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            requestAESKey();            
+        }
+
+        private void startIndole()
+        {
+            if (RemoteHost == null || RemoteHost.Trim() == "")
+            {
+                MessageBox.Show("无法获取到远程Indole RemoteHost", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            if (AesKey == null || AesKey.Trim() == "")
+            {
+                MessageBox.Show("无法获取到远程Indole AesKey", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
             refreshConfig();
 
             if (indoleExe != null)
