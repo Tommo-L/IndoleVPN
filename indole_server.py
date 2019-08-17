@@ -8,12 +8,20 @@ app = Flask(__name__)
 
 
 aeskey = str(uuid.uuid1()).replace('-', '')
-remoteHost = '45.32.129.138:12346'
+port = 12345
+remoteHost = '45.32.129.138:%d' % port
 
 
 def refresh_config():
     global aeskey
-    config = '<indole>\n<tcpaes network="tcp" address="0.0.0.0:34568" bufsize="4096">\n<encode>\n<aesdec queue_size="1024" hex_key="%s" buf_size="8192"/>\n</encode>\n<decode>\n<aesenc queue_size="1024" hex_key="%s"/>\n</decode>\n<tcp network="tcp" address="localhost:8118"/>\n</tcpaes>\n</indole>' % (aeskey, aeskey)
+    global port
+    global remoteHost
+    
+    aeskey = str(uuid.uuid1()).replace('-', '')
+    port = port + 1
+    remoteHost = '45.32.129.138:%d' % port
+
+    config = '<indole>\n<tcpaes network="tcp" address="0.0.0.0:%d" bufsize="4096">\n<encode>\n<aesdec queue_size="1024" hex_key="%s" buf_size="8192"/>\n</encode>\n<decode>\n<aesenc queue_size="1024" hex_key="%s"/>\n</decode>\n<tcp network="tcp" address="localhost:8118"/>\n</tcpaes>\n</indole>' % (port, aeskey, aeskey)
     
     print(config)
 
@@ -26,7 +34,10 @@ proc = None
 def start_indole():
     global proc
     if proc != None:
-        proc.kill()
+        try:
+            proc.kill()
+        except Exception as error:
+            print(error)
         proc = None
     proc = subprocess.Popen('./indole < config.xml', cwd = '/root/golang/indole', shell=True)
 
@@ -34,9 +45,7 @@ def start_indole():
 
 def timerRefreshConfig():  
     print("refresh config...." )
-    global aeskey
-
-    aeskey = str(uuid.uuid1()).replace('-', '')
+ 
     refresh_config()
     start_indole()
     
